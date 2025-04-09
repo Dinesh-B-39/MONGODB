@@ -1,0 +1,9 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="text-center">
+    <h1>Welcome to Finance Tracker</h1>
+    <p>Start managing your finances today!</p>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+</div>
+{% endblock %}

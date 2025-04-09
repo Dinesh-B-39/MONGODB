@@ -1,0 +1,153 @@
+{% extends "layout.html" %}
+
+{% block additional_styles %}
+<style>
+    .chart-container {
+        height: 300px;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-chart-line me-2"></i>Dashboard</h1>
+
+<!-- Financial Summary Cards -->
+<div class="row gy-4 mb-4">
+    <div class="col-md-4">
+        <div class="card card-dashboard">
+            <div class="card-header card-header-income">
+                <h5 class="mb-0"><i class="fas fa-arrow-up me-2"></i>Total Income</h5>
+            </div>
+            <div class="card-body">
+                <h2 class="text-success">{{ format_currency(total_income) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-dashboard">
+            <div class="card-header card-header-expense">
+                <h5 class="mb-0"><i class="fas fa-arrow-down me-2"></i>Total Expenses</h5>
+            </div>
+            <div class="card-body">
+                <h2 class="text-danger">{{ format_currency(total_expenses) }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-dashboard">
+            <div class="card-header card-header-balance">
+                <h5 class="mb-0"><i class="fas fa-balance-scale me-2"></i>Current Balance</h5>
+            </div>
+            <div class="card-body">
+                <h2 class="{{ 'text-success' if current_balance >= 0 else 'text-danger' }}">
+                    {{ format_currency(current_balance) }}
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Dashboard Content -->
+<div class="row gy-4">
+    <!-- Left Column: Charts -->
+    <div class="col-lg-8">
+        <!-- Smart Insights -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-lightbulb me-2"></i>Smart Insights</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3" id="insightList">
+                    <!-- Insights will be rendered by insights.js -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Monthly Expenses Chart -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Monthly Expense Trend</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="monthlyExpensesChart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Expenses by Category Chart -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Expenses by Category</h5>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="expenseByCategoryChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column: Recent Transactions & Goals -->
+    <div class="col-lg-4">
+        <!-- Recent Transactions -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history me-2"></i>Recent Transactions</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush transaction-list" id="transactionList">
+                    <!-- Transactions will be rendered by transactions.js -->
+                </div>
+                <div class="card-footer text-center">
+                    <a href="{{ url_for('transactions') }}" class="btn btn-sm btn-outline-primary">
+                        View All Transactions
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Saving Goals Progress -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-bullseye me-2"></i>Saving Goals</h5>
+            </div>
+            <div class="card-body" id="goalList">
+                <!-- Goals will be rendered by goals.js -->
+            </div>
+        </div>
+        
+        <!-- Budget Status -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-money-bill-wave me-2"></i>Budget Status</h5>
+            </div>
+            <div class="card-body" id="budgetList">
+                <!-- Budgets will be rendered by budget.js -->
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='js/transactions.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/goals.js') }}"></script>
+<script src="{{ url_for('static', filename='js/budget.js') }}"></script>
+<script src="{{ url_for('static', filename='js/insights.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const defaultData = { labels: [], data: [] };
+        const categoryExpenseData = {{ category_expenses|tojson|safe }} || defaultData;
+        const monthlyExpenseData = {{ monthly_expenses|tojson|safe }} || defaultData;
+        if (typeof window.initExpenseByCategoryChart === 'function') {
+            window.initExpenseByCategoryChart(categoryExpenseData);
+        }
+        if (typeof window.initMonthlyExpensesChart === 'function') {
+            window.initMonthlyExpensesChart(monthlyExpenseData);
+        }
+    });
+</script>
+{% endblock %}

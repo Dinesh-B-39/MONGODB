@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h1 class="mb-4"><i class="fas fa-bullseye me-2"></i>Saving Goals</h1>
+
+<!-- Add Goal Form -->
+<div class="card mb-4">
+    <div class="card-header">Add Goal</div>
+    <div class="card-body">
+        <form id="goalForm">
+            <div class="mb-3">
+                <input type="text" class="form-control" id="name" placeholder="Goal Name" required>
+            </div>
+            <div class="mb-3">
+                <input type="number" class="form-control" id="targetAmount" placeholder="Target Amount" step="0.01" required>
+            </div>
+            <div class="mb-3">
+                <input type="date" class="form-control" id="deadline" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Goal</button>
+        </form>
+    </div>
+</div>
+
+<!-- Goal List -->
+<div class="card">
+    <div class="card-header">Goal List</div>
+    <div class="card-body" id="goalList">
+        <!-- Goals will be rendered by goals.js -->
+    </div>
+</div>
+
+{% endblock %}
+
+{% block additional_scripts %}
+<script src="{{ url_for('static', filename='js/goals.js') }}"></script>
+<script>
+    document.getElementById('goalForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('name').value;
+        const targetAmount = document.getElementById('targetAmount').value;
+        const deadline = document.getElementById('deadline').value;
+        addGoal(name, targetAmount, deadline);
+        this.reset();
+    });
+</script>
+{% endblock %}
